@@ -1,0 +1,358 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tomatito · A little tomato that helps you focus</title>
+<meta name="description" content="Tomatito is a friendly focus timer based on the Pomodoro® Technique, for Mac, iPhone, Apple Watch and your browser. Work on one thing, take real breaks, repeat.">
+<meta name="theme-color" content="#fff7ed">
+<link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<link rel="canonical" href="https://tomatito.app/">
+<meta property="og:title" content="Tomatito">
+<meta property="og:description" content="A little tomato that helps you focus. For Mac, iPhone, Apple Watch and your browser.">
+<meta property="og:image" content="https://tomatito.app/assets/app-icon.png">
+<meta property="og:url" content="https://tomatito.app/">
+<meta name="twitter:card" content="summary">
+<style>
+  :root {
+    color-scheme: light;
+    --red: #f55c4f;
+    --deep: #d13333;
+    --pale: #ffe8e0;
+    --leaf: #66b366;
+    --leaf-dark: #40804d;
+    --cream: #fff7ed;
+    --blush: #ffede6;
+    --peach: #fce3d6;
+    --mint: #d1edd6;
+    --ink: #452421;
+    --ink-2: rgba(69, 36, 33, .72);
+    --ink-3: rgba(69, 36, 33, .5);
+    --card: rgba(255, 255, 255, .72);
+    --radius: 26px;
+    --font: ui-rounded, "SF Pro Rounded", "Nunito", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    font-family: var(--font);
+    color: var(--ink);
+    background: linear-gradient(180deg, var(--cream), var(--blush) 40%, var(--cream));
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--deep); }
+  img { max-width: 100%; display: block; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 22px; }
+
+  /* Top bar */
+  header.top {
+    position: sticky; top: 0; z-index: 10;
+    backdrop-filter: saturate(1.4) blur(14px);
+    -webkit-backdrop-filter: saturate(1.4) blur(14px);
+    background: rgba(255, 247, 237, .78);
+    border-bottom: 1px solid rgba(69, 36, 33, .06);
+  }
+  header.top .wrap { display: flex; align-items: center; gap: 18px; height: 60px; }
+  .brand { display: flex; align-items: center; gap: 9px; font-weight: 800; font-size: 20px; color: var(--ink); text-decoration: none; }
+  .brand img { width: 30px; height: 30px; }
+  nav.links { margin-left: auto; display: flex; gap: 22px; }
+  nav.links a { color: var(--ink-2); text-decoration: none; font-weight: 600; font-size: 15px; }
+  nav.links a:hover { color: var(--deep); }
+  @media (max-width: 720px) { nav.links { display: none; } }
+
+  /* Buttons */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 9px;
+    min-height: 54px; padding: 0 26px; border-radius: 999px;
+    font: 700 18px/1 var(--font); text-decoration: none; cursor: pointer;
+    transition: transform .15s ease, box-shadow .15s ease, background .15s ease;
+  }
+  .btn:active { transform: scale(.96); }
+  .btn.primary { color: #fff; background: linear-gradient(180deg, var(--red), var(--deep)); box-shadow: 0 8px 20px rgba(209, 51, 51, .28); }
+  .btn.primary:hover { box-shadow: 0 10px 26px rgba(209, 51, 51, .38); }
+  .btn.soft { color: var(--ink); background: rgba(255, 255, 255, .8); box-shadow: 0 2px 10px rgba(69, 36, 33, .06); }
+  .btn.soft:hover { background: #fff; }
+  .btn svg { width: 20px; height: 20px; flex: none; }
+  .note { font-size: 14px; color: var(--ink-3); font-weight: 600; }
+
+  /* Hero */
+  .hero { text-align: center; padding-top: 64px; padding-bottom: 40px; }
+  .hero .tomato { width: min(300px, 64vw); margin: 0 auto 8px; }
+  .hero h1 { font-size: clamp(38px, 7vw, 66px); line-height: 1.05; letter-spacing: -.02em; margin: 10px 0 16px; font-weight: 900; }
+  .hero p.lede { font-size: clamp(18px, 2.4vw, 22px); color: var(--ink-2); max-width: 640px; margin: 0 auto 30px; font-weight: 500; }
+  .ctas { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .hero .note { margin-top: 16px; }
+  .platforms { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-top: 26px; }
+  .chip { padding: 7px 14px; border-radius: 999px; background: var(--card); font-weight: 700; font-size: 14px; color: var(--ink-2); }
+  .chip.soon { color: var(--leaf-dark); background: rgba(209, 237, 214, .7); }
+
+  /* Animated tomato */
+  .wave { animation: wave 3.2s linear infinite; }
+  .bob { animation: bob 3.4s ease-in-out infinite; transform-origin: 50% 100%; }
+  @keyframes wave { to { transform: translateX(-50px); } }
+  @keyframes bob { 50% { transform: scale(1.02, .985); } }
+  @media (prefers-reduced-motion: reduce) { .wave, .bob, .breath { animation: none !important; } }
+
+  /* Sections */
+  section { padding: 70px 0; }
+  .eyebrow { font-size: 13px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--deep); margin: 0 0 10px; }
+  h2 { font-size: clamp(30px, 4.6vw, 44px); line-height: 1.1; letter-spacing: -.015em; margin: 0 0 14px; font-weight: 900; }
+  .sub { font-size: 19px; color: var(--ink-2); max-width: 620px; margin: 0 0 34px; font-weight: 500; }
+  .center { text-align: center; }
+  .center .sub { margin-left: auto; margin-right: auto; }
+
+  /* Steps */
+  .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+  .step { background: var(--card); border-radius: var(--radius); padding: 26px 24px; text-align: left; }
+  .step .icon { height: 64px; display: flex; align-items: center; margin-bottom: 12px; }
+  .step h3 { margin: 0 0 6px; font-size: 21px; font-weight: 800; }
+  .step p { margin: 0; color: var(--ink-2); font-weight: 500; }
+  .num { display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: var(--red); color: #fff; font-size: 14px; font-weight: 800; margin-right: 8px; vertical-align: 2px; }
+  @media (max-width: 820px) { .steps { grid-template-columns: 1fr; } }
+
+  /* Platform showcase */
+  .showcase { display: grid; grid-template-columns: 1fr 1.1fr; gap: 50px; align-items: center; }
+  .showcase.flip { grid-template-columns: 1.1fr 1fr; }
+  .showcase.flip .copy { order: 2; }
+  @media (max-width: 880px) { .showcase, .showcase.flip { grid-template-columns: 1fr; gap: 34px; } .showcase.flip .copy { order: 0; } }
+  ul.features { list-style: none; padding: 0; margin: 0 0 28px; display: grid; gap: 14px; }
+  ul.features li { display: grid; grid-template-columns: 30px 1fr; gap: 10px; font-size: 17px; color: var(--ink-2); font-weight: 500; }
+  ul.features b { color: var(--ink); font-weight: 800; }
+  ul.features .dot { width: 30px; height: 30px; border-radius: 10px; display: grid; place-items: center; background: rgba(245, 92, 79, .12); color: var(--deep); font-size: 16px; }
+  .green ul.features .dot { background: rgba(102, 179, 102, .18); color: var(--leaf-dark); }
+
+  .gallery { position: relative; display: flex; justify-content: center; align-items: flex-end; gap: 18px; }
+  .shot { border-radius: 18px; box-shadow: 0 24px 60px rgba(69, 36, 33, .16), 0 4px 14px rgba(69, 36, 33, .08); }
+  .phone { width: min(250px, 42vw); border-radius: min(40px, 7vw); border: 7px solid #1e1413; box-shadow: 0 30px 60px rgba(69, 36, 33, .2); }
+  .phone.back { transform: translateY(-26px) rotate(-3deg); }
+  .watch-frame { position: absolute; right: -6px; bottom: -18px; width: min(150px, 26vw); padding: 9px; border-radius: 44px; background: #1e1413; box-shadow: 0 20px 44px rgba(69, 36, 33, .28); }
+  .watch-frame img { border-radius: 34px; }
+  @media (max-width: 520px) { .watch-frame { right: -10px; } }
+
+  .mac-stack { position: relative; padding-bottom: 60px; }
+  .mac-stack .break { width: 100%; }
+  .mac-stack .popover { position: absolute; width: 36%; right: -14px; bottom: 0; border-radius: 18px; }
+  .mac-stack .floating { position: absolute; width: 24%; left: -14px; bottom: 16px; border-radius: 22%; }
+
+  /* Web */
+  .web-card { background: var(--card); border-radius: 32px; padding: 44px; display: grid; grid-template-columns: 1fr auto; gap: 30px; align-items: center; }
+  @media (max-width: 760px) { .web-card { grid-template-columns: 1fr; padding: 30px 24px; } }
+
+  /* Science */
+  .science { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-bottom: 22px; }
+  .finding { background: var(--card); border-radius: var(--radius); padding: 24px; }
+  .finding h3 { margin: 0 0 8px; font-size: 19px; font-weight: 800; }
+  .finding p { margin: 0 0 12px; color: var(--ink-2); font-weight: 500; font-size: 16px; }
+  .finding a { font-size: 14px; font-weight: 700; text-decoration: none; }
+  .finding a:hover { text-decoration: underline; }
+  .caveat { background: rgba(209, 237, 214, .55); border-radius: var(--radius); padding: 22px 24px; color: var(--ink-2); font-weight: 500; }
+  .caveat b { color: var(--leaf-dark); }
+  @media (max-width: 880px) { .science { grid-template-columns: 1fr; } }
+
+  /* Privacy strip */
+  .promises { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 8px; }
+  .promise { background: var(--card); border-radius: 999px; padding: 12px 20px; font-weight: 700; }
+
+  footer { padding: 40px 0 60px; color: var(--ink-3); font-size: 14px; font-weight: 500; }
+  footer .wrap { display: grid; gap: 10px; }
+  footer .row { display: flex; gap: 18px; flex-wrap: wrap; align-items: center; }
+  footer a { color: var(--ink-2); font-weight: 700; text-decoration: none; }
+  footer a:hover { color: var(--deep); }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#"><img src="assets/icon.svg" alt=""> Tomatito</a>
+    <nav class="links" aria-label="Sections">
+      <a href="#how">How it works</a>
+      <a href="#mac">Mac</a>
+      <a href="#iphone">iPhone &amp; Watch</a>
+      <a href="#web">Web</a>
+      <a href="#science">Why it works</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="hero wrap">
+    <svg class="tomato" viewBox="-4 -4 108 100" role="img" aria-label="A smiling tomato, a little over half ripe">
+      <defs>
+        <clipPath id="body"><path d="M50 11.96C72 1.84 100 14.72 100 49.68C100 77.28 80 92 50 92C20 92 0 77.28 0 49.68C0 14.72 28 1.84 50 11.96Z"/></clipPath>
+        <linearGradient id="juice" gradientUnits="userSpaceOnUse" x1="0" y1="30" x2="0" y2="92"><stop offset="0" stop-color="#f55c4f"/><stop offset="1" stop-color="#d13333"/></linearGradient>
+      </defs>
+      <g class="bob">
+        <path d="M50 11.96C72 1.84 100 14.72 100 49.68C100 77.28 80 92 50 92C20 92 0 77.28 0 49.68C0 14.72 28 1.84 50 11.96Z" fill="#ffe8e0"/>
+        <g clip-path="url(#body)">
+          <path class="wave" fill="url(#juice)" d="M-100 38Q-87.5 34.5 -75 38T-50 38T-25 38T0 38T25 38T50 38T75 38T100 38T125 38T150 38T175 38T200 38L200 100L-100 100Z"/>
+        </g>
+        <ellipse cx="25" cy="33.12" rx="8" ry="4" fill="#fff" opacity=".45" transform="rotate(-35 25 33.12)"/>
+        <path d="M50 11.96C72 1.84 100 14.72 100 49.68C100 77.28 80 92 50 92C20 92 0 77.28 0 49.68C0 14.72 28 1.84 50 11.96Z" fill="none" stroke="#d13333" stroke-opacity=".9" stroke-width="2.2"/>
+        <ellipse cx="37" cy="51.52" rx="4.2" ry="5.04" fill="#452421"/><circle cx="38.16" cy="49.32" r="1.785" fill="#fff"/>
+        <ellipse cx="63" cy="51.52" rx="4.2" ry="5.04" fill="#452421"/><circle cx="64.16" cy="49.32" r="1.785" fill="#fff"/>
+        <ellipse cx="25" cy="59.34" rx="6" ry="3" fill="#ff8099" opacity=".5"/><ellipse cx="75" cy="59.34" rx="6" ry="3" fill="#ff8099" opacity=".5"/>
+        <path d="M45.5 59.34Q50 64.34 54.5 59.34" fill="none" stroke="#452421" stroke-width="2" stroke-linecap="round"/>
+        <rect x="49.75" y="-0.98" width="4.5" height="13" rx="2.25" fill="#40804d" transform="rotate(14 52 5.52)"/>
+        <path d="M50 13.8Q52.34 8.39 64.11 5.71Q61.63 11.20 50 13.8M50 13.8Q63.08 13.06 72.83 16.89Q59.53 17.61 50 13.8M50 13.8Q55.74 18.75 50.00 23.80Q44.26 18.75 50 13.8M50 13.8Q40.47 17.61 27.17 16.89Q36.92 13.06 50 13.8M50 13.8Q38.37 11.20 35.89 5.71Q47.66 8.39 50 13.8" fill="#66b366" stroke="#40804d" stroke-width="0.8"/>
+      </g>
+    </svg>
+    <h1>A little tomato that<br>helps you focus.</h1>
+    <p class="lede">Work on one thing while a tomato ripens. When it's ripe, take a real break. Tomatito is a friendly focus timer based on the Pomodoro® Technique.</p>
+    <div class="ctas">
+      <a class="btn primary" href="https://github.com/SanGlydeen/tomatito-site/releases/latest/download/Tomatito.dmg">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 3a1 1 0 0 1 1 1v9.59l3.3-3.3a1 1 0 1 1 1.4 1.42l-5 5a1 1 0 0 1-1.4 0l-5-5a1 1 0 1 1 1.4-1.42l3.3 3.3V4a1 1 0 0 1 1-1ZM5 19a1 1 0 1 0 0 2h14a1 1 0 1 0 0-2H5Z"/></svg>
+        Download for Mac
+      </a>
+      <a class="btn soft" href="https://app.tomatito.app/">Open in your browser</a>
+    </div>
+    <p class="note">Free · macOS 13 or later · no account needed</p>
+    <div class="platforms">
+      <span class="chip">Mac</span>
+      <span class="chip">Browser</span>
+      <span class="chip soon">iPhone · coming soon</span>
+      <span class="chip soon">Apple Watch · coming soon</span>
+    </div>
+  </div>
+
+  <section id="how">
+    <div class="wrap center">
+      <p class="eyebrow">How it works</p>
+      <h2>Grow a tomato. Take a break. Repeat.</h2>
+      <p class="sub">Short, fixed stretches of work with real breaks in between. Every length can be changed to suit what you're doing.</p>
+      <div class="steps">
+        <div class="step">
+          <div class="icon"><img src="assets/icon.svg" alt="" width="64" height="64"></div>
+          <h3><span class="num">1</span>Grow a tomato</h3>
+          <p>Work on one thing for 25 minutes while the tomato ripens. When it's ripe you'll hear a chime, or feel a tap on your Apple Watch.</p>
+        </div>
+        <div class="step">
+          <div class="icon">
+            <svg width="64" height="64" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="30" fill="#66b366" opacity=".18"/><circle class="breath" cx="32" cy="32" r="20" fill="#66b366" opacity=".35" style="transform-origin:32px 32px;animation:bob 4s ease-in-out infinite"/></svg>
+          </div>
+          <h3><span class="num">2</span>Take a short break</h3>
+          <p>Five minutes to stretch, drink some water, or look out of a window. The break is part of the method, not a reward.</p>
+        </div>
+        <div class="step">
+          <div class="icon" aria-hidden="true">
+            <img src="assets/icon.svg" alt="" width="34" height="34"><img src="assets/icon.svg" alt="" width="34" height="34"><img src="assets/icon.svg" alt="" width="34" height="34"><img src="assets/icon.svg" alt="" width="34" height="34" style="opacity:.4">
+          </div>
+          <h3><span class="num">3</span>Every 4, a long break</h3>
+          <p>After four tomatoes you've earned fifteen minutes to rest properly. Then start a fresh set.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="mac">
+    <div class="wrap showcase">
+      <div class="copy">
+        <p class="eyebrow">For Mac</p>
+        <h2>Lives in your menu bar.</h2>
+        <p class="sub">A tomato that fills with red as you work, with the time beside it. When it's ripe, your screen gently, but firmly, insists you take a break.</p>
+        <ul class="features">
+          <li><span class="dot">🍅</span><span><b>Menu bar tomato</b> that ripens as your minutes pass.</span></li>
+          <li><span class="dot">🌿</span><span><b>A break screen</b> with a breathing guide and an idea for the five minutes. Skipping takes a deliberate hold.</span></li>
+          <li><span class="dot">▢</span><span><b>A floating timer</b> you can park on any display.</span></li>
+          <li><span class="dot">☎︎</span><span><b>Considerate:</b> it pauses when your Mac sleeps, and waits for you to finish a call before it breaks in.</span></li>
+        </ul>
+        <a class="btn primary" href="https://github.com/SanGlydeen/tomatito-site/releases/latest/download/Tomatito.dmg">Download for Mac</a>
+      </div>
+      <div class="mac-stack">
+        <img class="shot break" src="assets/mac-break.jpg" alt="Tomatito's break screen: a sleeping tomato, a countdown and a breathing guide" loading="lazy">
+        <img class="shot popover" src="assets/mac-popover.png" alt="The menu bar popover with a ripening tomato and today's harvest" loading="lazy">
+        <img class="shot floating" src="assets/mac-floating.png" alt="The floating timer" loading="lazy">
+      </div>
+    </div>
+  </section>
+
+  <section id="iphone" class="green">
+    <div class="wrap showcase flip">
+      <div class="copy">
+        <p class="eyebrow" style="color:var(--leaf-dark)">iPhone &amp; Apple Watch · coming soon</p>
+        <h2>Made for when your hands are busy.</h2>
+        <p class="sub">Cooking, building, cleaning, making things. Press start, put the phone down, and let your wrist tell you when it's time.</p>
+        <ul class="features">
+          <li><span class="dot">⌚︎</span><span><b>Taps on your wrist</b> when a tomato is ripe, and double tap on Apple Watch to start or pause.</span></li>
+          <li><span class="dot">🗣</span><span><b>Hands-free:</b> “Hey Siri, start a tomato in Tomatito”. Works with the Action button too.</span></li>
+          <li><span class="dot">🔒</span><span><b>On your Lock Screen</b> and in the Dynamic Island, with a pause button.</span></li>
+          <li><span class="dot">🍃</span><span><b>Breaks start by themselves</b>, so you never have to touch the phone mid-task.</span></li>
+        </ul>
+      </div>
+      <div class="gallery">
+        <img class="phone back" src="assets/iphone-break.png" alt="Tomatito on iPhone during a break, with a breathing guide" loading="lazy">
+        <img class="phone" src="assets/iphone-focus.png" alt="Tomatito on iPhone with 14 minutes left on a tomato" loading="lazy">
+        <div class="watch-frame"><img src="assets/watch.png" alt="Tomatito on Apple Watch" loading="lazy"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="web">
+    <div class="wrap">
+      <div class="web-card">
+        <div>
+          <p class="eyebrow">In your browser</p>
+          <h2>On Windows, Chromebook and everything else.</h2>
+          <p class="sub" style="margin-bottom:0">The same tomato runs in any modern browser. Install it as an app from Chrome or Edge and it gets its own window, works offline, and can pop out a mini timer that stays on top.</p>
+        </div>
+        <a class="btn primary" href="https://app.tomatito.app/">Open Tomatito</a>
+      </div>
+    </div>
+  </section>
+
+  <section id="science">
+    <div class="wrap">
+      <p class="eyebrow">Why it works</p>
+      <h2>Small breaks, backed by research.</h2>
+      <p class="sub">There's little research on the Pomodoro® Technique itself, but a good deal on the parts it's built from.</p>
+      <div class="science">
+        <div class="finding">
+          <h3>Scheduled breaks beat “I'll stop when I'm tired”</h3>
+          <p>Students who took a fixed 6 minute break after every 24 minutes felt less tired and distracted, and more motivated, than students who chose their own breaks. They got the same done in less time.</p>
+          <a href="https://doi.org/10.1111/bjep.12593">Biwer et al., 2023 ↗</a>
+        </div>
+        <div class="finding">
+          <h3>Short breaks restore energy</h3>
+          <p>A review pooling 22 studies found that breaks of ten minutes or less raise energy and reduce fatigue.</p>
+          <a href="https://doi.org/10.1371/journal.pone.0272460">Albulescu et al., 2022 ↗</a>
+        </div>
+        <div class="finding">
+          <h3>A pause stops attention fading</h3>
+          <p>On a long, repetitive task, performance slid for people who kept going, but not for people who briefly switched to something else.</p>
+          <a href="https://doi.org/10.1016/j.cognition.2010.12.007">Ariga &amp; Lleras, 2011 ↗</a>
+        </div>
+      </div>
+      <p class="caveat"><b>What we don't know:</b> there's nothing magic about 25 and 5. In the student study, 12 minutes with 3 minute breaks worked about as well. What seems to matter is deciding the breaks in advance and actually taking them.</p>
+    </div>
+  </section>
+
+  <section id="privacy" style="padding-top:20px">
+    <div class="wrap center">
+      <h2>Your tomatoes stay yours.</h2>
+      <div class="promises">
+        <span class="promise">No account</span>
+        <span class="promise">No ads</span>
+        <span class="promise">No tracking</span>
+        <span class="promise">Works offline</span>
+      </div>
+      <p class="note" style="margin-top:18px"><a href="privacy.html">Read the privacy policy</a></p>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="row">
+      <a class="brand" href="#" style="font-size:16px"><img src="assets/icon.svg" alt="" style="width:22px;height:22px"> Tomatito</a>
+      <a href="privacy.html">Privacy</a>
+      <a href="mailto:hello@tomatito.app">Contact</a>
+    </div>
+    <p style="margin:0">Pomodoro® is a registered trademark of Francesco Cirillo. Tomatito is an independent app and isn't affiliated with or endorsed by him. Apple, Mac, iPhone and Apple Watch are trademarks of Apple Inc.</p>
+    <p style="margin:0">© 2026 Tomatito</p>
+  </div>
+</footer>
+</body>
+</html>
