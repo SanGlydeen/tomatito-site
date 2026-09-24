@@ -58,10 +58,15 @@
   header.top .wrap { display: flex; align-items: center; gap: 18px; height: 60px; }
   .brand { display: flex; align-items: center; gap: 9px; font-weight: 800; font-size: 20px; color: var(--ink); text-decoration: none; }
   .brand img { width: 30px; height: 30px; }
-  nav.links { margin-left: auto; display: flex; gap: 22px; }
-  nav.links a { color: var(--ink-2); text-decoration: none; font-weight: 600; font-size: 15px; }
+  /* The links are this page's sections: the one you're reading is lit and the bar shows how far down you are. */
+  nav.links { margin-left: auto; display: flex; gap: 4px; }
+  nav.links a { padding: 6px 12px; border-radius: 999px; color: var(--ink-2); text-decoration: none; font-weight: 600; font-size: 15px; transition: color .2s, background .2s; }
   nav.links a:hover { color: var(--deep); }
-  @media (max-width: 720px) { nav.links { display: none; } }
+  nav.links a[aria-current] { color: var(--deep); background: rgba(245, 92, 79, .12); }
+  @media (max-width: 860px) { nav.links { display: none; } }
+  .progress { position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; background: linear-gradient(90deg, var(--red), var(--deep));
+              transform: scaleX(0); transform-origin: left; }
+  section[id] { scroll-margin-top: 60px; }
 
   /* Buttons */
   .btn {
@@ -194,8 +199,10 @@
       <a href="#iphone">iPhone &amp; Watch</a>
       <a href="#web">Web</a>
       <a href="#science">Why it works</a>
+      <a href="#privacy">Privacy</a>
     </nav>
   </div>
+  <div class="progress" aria-hidden="true"></div>
 </header>
 
 <main>
@@ -379,5 +386,26 @@
     <p style="margin:0">© 2026 Tomatito</p>
   </div>
 </footer>
+
+<script>
+  // Light up the section you're reading and fill the bar under the header as you scroll.
+  const links = [...document.querySelectorAll('nav.links a')];
+  const sections = links.map(a => document.querySelector(a.hash));
+  const bar = document.querySelector('.progress');
+  let queued = false;
+  function update() {
+    queued = false;
+    const root = document.documentElement;
+    const room = root.scrollHeight - innerHeight;
+    bar.style.transform = `scaleX(${room > 0 ? Math.min(scrollY / room, 1) : 0})`;
+    let current = -1;
+    if (scrollY >= room - 2) current = sections.length - 1;
+    else sections.forEach((s, i) => { if (s.getBoundingClientRect().top <= innerHeight * .4) current = i; });
+    links.forEach((a, i) => i === current ? a.setAttribute('aria-current', 'location') : a.removeAttribute('aria-current'));
+  }
+  addEventListener('scroll', () => { if (!queued) { queued = true; requestAnimationFrame(update); } }, { passive: true });
+  addEventListener('resize', update);
+  update();
+</script>
 </body>
 </html>
