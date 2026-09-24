@@ -1,0 +1,9 @@
+{
+  "version": "1.1",
+  "url": "https://github.com/SanGlydeen/tomatito-site/releases/download/v1.1/Tomatito.dmg",
+  "minimumSystemVersion": "14.0",
+  "notes": "Tomatito now updates itself. After this one, new versions install from the popover.",
+  "archive": "https://github.com/SanGlydeen/tomatito-site/releases/download/v1.1/Tomatito-1.1.zip",
+  "sha256": "c8a022116271e25f73968c4b63e94fb11b95e083d78a604378a3855fd3939f2a",
+  "archiveSize": 878563
+}
