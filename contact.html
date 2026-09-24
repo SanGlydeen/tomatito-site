@@ -7,6 +7,7 @@
 <meta name="description" content="Questions, ideas or a bug in Tomatito? Send a message.">
 <link rel="icon" href="assets/icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 <style>
   :root { color-scheme: light; --red: #f55c4f; --deep: #d13333; --ink: #452421; --ink-2: rgba(69, 36, 33, .75); --ink-3: rgba(69, 36, 33, .5);
           --card: rgba(255, 255, 255, .72); --leaf-dark: #40804d;
@@ -44,6 +45,7 @@
   button:focus-visible { outline: 2px solid var(--deep); outline-offset: 3px; }
   .status { margin: 0; font-weight: 700; color: var(--deep); }
   .status:empty { display: none; }
+  .cf-turnstile:not(:empty) { margin: 0 0 18px; }
   .done { text-align: center; padding: 40px 26px; }
   .done h2 { font-size: 26px; margin: 10px 0 6px; font-weight: 900; }
   .done p { color: var(--ink-2); font-weight: 500; font-size: 17px; margin: 0; }
@@ -74,6 +76,10 @@
       <input id="website" name="website" tabindex="-1" autocomplete="off">
     </div>
 
+    <!-- Cloudflare Turnstile: stays invisible unless it needs the visitor to tick a box. -->
+    <div class="cf-turnstile" data-sitekey="0x4AAAAAAFCED23Nnk4D7wzF" data-appearance="interaction-only"></div>
+    <noscript><p class="status" style="margin:0 0 18px">The form needs JavaScript to check you're not a bot. Please turn it on and reload.</p></noscript>
+
     <div class="row">
       <button type="submit" id="send">Send message</button>
       <p class="status" id="status" role="status"></p>
@@ -100,7 +106,7 @@
   const send = document.getElementById('send');
   const done = () => { form.hidden = true; document.getElementById('done').hidden = false; };
 
-  // Without JavaScript the form posts normally and comes back here with ?sent or ?failed.
+  // A form posted without these scripts comes back here with ?sent or ?failed.
   const query = new URLSearchParams(location.search);
   if (query.has('sent')) done();
   if (query.has('failed')) status.textContent = 'That didn\'t go through. Check the form and try again.';
@@ -110,6 +116,8 @@
     send.disabled = true;
     status.textContent = '';
     send.textContent = 'Sending…';
+    // Give the bot check a few seconds to finish if Send was quicker than it.
+    for (let i = 0; i < 50 && window.turnstile && !turnstile.getResponse(); i++) await new Promise(r => setTimeout(r, 100));
     let problem;
     try {
       const res = await fetch(form.action, { method: 'POST', body: new FormData(form), headers: { Accept: 'application/json' } });
@@ -120,6 +128,7 @@
       problem = 'Couldn\'t reach the server. Check your connection and try again.';
     }
     status.textContent = problem;
+    window.turnstile?.reset();   // each check can be used once, so get a fresh one for the next try
     send.disabled = false;
     send.textContent = 'Send message';
   });
