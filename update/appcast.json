@@ -1,9 +1,9 @@
 {
-  "version": "1.1",
-  "url": "https://github.com/SanGlydeen/tomatito-site/releases/download/v1.1/Tomatito.dmg",
+  "version": "1.2",
+  "url": "https://github.com/SanGlydeen/tomatito-site/releases/download/v1.2/Tomatito.dmg",
   "minimumSystemVersion": "14.0",
-  "notes": "Tomatito now updates itself. After this one, new versions install from the popover.",
-  "archive": "https://github.com/SanGlydeen/tomatito-site/releases/download/v1.1/Tomatito-1.1.zip",
-  "sha256": "c8a022116271e25f73968c4b63e94fb11b95e083d78a604378a3855fd3939f2a",
-  "archiveSize": 878563
+  "notes": "A livelier tomato: it blinks, its juice sloshes, and your break blooms out of the menu bar.",
+  "archive": "https://github.com/SanGlydeen/tomatito-site/releases/download/v1.2/Tomatito-1.2.zip",
+  "sha256": "cd6004e14d7fcc4a8e6e2aeb9eb1d6509b8f9467997e105f20ed22a346716b9d",
+  "archiveSize": 973274
 }

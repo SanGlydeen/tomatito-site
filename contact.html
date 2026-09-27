@@ -7,11 +7,19 @@
 <meta name="description" content="Questions, ideas or a bug in Tomatito? Send a message.">
 <link rel="icon" href="assets/icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<script>document.documentElement.classList.add('js')</script>
 <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 <style>
   :root { color-scheme: light; --red: #f55c4f; --deep: #d13333; --ink: #452421; --ink-2: rgba(69, 36, 33, .75); --ink-3: rgba(69, 36, 33, .5);
           --card: rgba(255, 255, 255, .72); --leaf-dark: #40804d;
-          --font: ui-rounded, "SF Pro Rounded", "Nunito", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+          --font: ui-rounded, "SF Pro Rounded", "Nunito", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+          /* Real damped springs, sampled (the same ones the Mac, iPhone and web apps use). */
+          --press: linear(0, 0.101, 0.331, 0.596, 0.834, 1.01, 1.117, 1.16, 1.156, 1.125, 1.083, 1.041, 1.008, 0.986, 0.976, 0.974, 0.977, 0.984, 0.991, 0.997, 1.001, 1.003, 1.004, 1.004, 1.003, 1.002, 1.001, 1);
+          --pop: linear(0, 0.042, 0.149, 0.294, 0.453, 0.611, 0.754, 0.876, 0.973, 1.044, 1.091, 1.117, 1.126, 1.123, 1.11, 1.093, 1.073, 1.053, 1.034, 1.018, 1.005, 0.996, 0.989, 0.986, 0.984, 0.984, 0.986, 0.988, 0.99, 0.993, 0.995, 0.997, 0.999, 1, 1.001, 1.002, 1.002, 1.002, 1.002, 1.002, 1.001, 1.001, 1);
+          --settle: linear(0, 0.025, 0.086, 0.169, 0.263, 0.359, 0.452, 0.54, 0.619, 0.689, 0.75, 0.802, 0.846, 0.882, 0.912, 0.935, 0.954, 0.969, 0.98, 0.988, 0.994, 0.998, 1.001, 1.003, 1.004, 1.005, 1.005, 1.005, 1.005, 1.004, 1.004, 1.003, 1.003, 1.002, 1.002, 1.002, 1.001, 1.001, 1); }
+  @supports not (transition-timing-function: linear(0, 1)) {
+    :root { --press: cubic-bezier(.34, 1.56, .64, 1); --pop: cubic-bezier(.34, 1.56, .64, 1); --settle: cubic-bezier(.2, .9, .3, 1); }
+  }
   * { box-sizing: border-box; }
   body { margin: 0; font-family: var(--font); color: var(--ink); line-height: 1.6;
          background: linear-gradient(180deg, #fff7ed, #ffede6 50%, #fff7ed); -webkit-font-smoothing: antialiased; }
@@ -37,10 +45,9 @@
   button {
     min-height: 52px; padding: 0 28px; border: 0; border-radius: 999px; cursor: pointer;
     font: 700 18px/1 var(--font); color: #fff; background: linear-gradient(180deg, var(--red), var(--deep));
-    box-shadow: 0 8px 20px rgba(209, 51, 51, .28); transition: transform .15s ease, box-shadow .15s ease, opacity .15s;
+    box-shadow: 0 8px 20px rgba(209, 51, 51, .28); transition: box-shadow .25s var(--settle), opacity .15s;
   }
   button:hover { box-shadow: 0 10px 26px rgba(209, 51, 51, .38); }
-  button:active { transform: scale(.96); }
   button:disabled { opacity: .6; cursor: default; }
   button:focus-visible { outline: 2px solid var(--deep); outline-offset: 3px; }
   .status { margin: 0; font-weight: 700; color: var(--deep); }
@@ -52,6 +59,62 @@
   .done svg { width: 76px; height: 76px; }
   .small { color: var(--ink-3); font-size: 14px; font-weight: 500; margin: 16px 0 0; }
   footer { padding: 30px 0 60px; color: var(--ink-3); font-size: 14px; font-weight: 500; }
+
+  /* Motion. The same springs as the apps: everything comes from somewhere and settles. */
+  header .brand { view-transition-name: brand; }
+  .done svg { transform-origin: 50% 100%; }
+  /* Each leaf swings on the point where it meets the stem (in the drawing's own units). */
+  .done .leaf { transform-box: view-box; transform-origin: 51px 11.4px; --s: 1; }
+  .done .leaf + .leaf { transform-origin: 49px 11.4px; --s: -1; }
+  .lede { --i: 1; }
+  .card { --i: 2; }
+
+  @media (prefers-reduced-motion: no-preference) {
+    @view-transition { navigation: auto; }
+    ::view-transition-old(root) { animation: vt-out .16s ease-out both; }
+    ::view-transition-new(root) { animation: vt-in .32s var(--settle) both; }
+    ::view-transition-group(brand) { animation-duration: .5s; animation-timing-function: var(--settle); }
+    /* Once it's sent, the form and the thank-you card cross-fade where they stand, and nothing else moves. */
+    html.thanks::view-transition-old(root) { animation: vt-out .4s ease both; }
+    html.thanks::view-transition-new(root) { animation: vt-fade .4s ease both; }
+
+    /* The button presses like the app's: a quick squish while held, and a spring back on release. */
+    button { transition: translate .25s var(--settle), scale .46s var(--press), box-shadow .25s var(--settle), opacity .15s; }
+    button:not(:disabled):active { scale: .96; transition: translate .25s var(--settle), scale .08s ease-out, box-shadow .25s var(--settle), opacity .15s; }
+    .pulse { animation: pulse .9s ease-in-out infinite alternate; }
+
+    /* Arriving: the heading, the words and the card rise in, one after another. */
+    .js :is(h1, .lede, .card) { animation: arrive .65s var(--settle) backwards; animation-delay: calc(var(--i, 0) * 70ms + 60ms); }
+    .js #done.quiet { animation: none; }
+    .js #done.fade { animation: card-in .5s var(--settle) backwards; }
+    /* The thank-you tomato drops in, lands with a squash, and waves its leaves. */
+    .js .done svg { animation: fall .3s cubic-bezier(.55, .085, .68, .53) .15s backwards, appear .18s ease-out .15s backwards, land .8s ease-in-out .15s backwards; }
+    .js .done .leaf { animation: wiggle .7s ease-in-out .65s; }
+  }
+  @media (hover: hover) and (prefers-reduced-motion: no-preference) {
+    button:not(:disabled):hover { translate: 0 -2px; }
+  }
+
+  @keyframes vt-out { to { opacity: 0; } }
+  @keyframes vt-in { from { opacity: 0; transform: translateY(8px); } }
+  @keyframes vt-fade { from { opacity: 0; } }
+  @keyframes arrive { from { opacity: 0; translate: 0 14px; filter: blur(6px); } }
+  @keyframes card-in { from { opacity: 0; scale: .96; } }
+  @keyframes pulse { to { opacity: .7; } }
+  @keyframes fall { from { translate: 0 -28px; } }
+  @keyframes appear { from { opacity: 0; } }
+  /* Stretched a touch while it falls, squashed on contact (at 300ms), then a couple of rebounds. */
+  @keyframes land {
+    0%, 37.5% { transform: scale(.97, 1.03); }
+    48% { transform: scale(1.06, .94); }
+    66% { transform: scale(.98, 1.02); }
+    83% { transform: scale(1.01, .99); }
+  }
+  @keyframes wiggle {
+    25% { transform: rotate(calc(10deg * var(--s))); }
+    55% { transform: rotate(calc(-7deg * var(--s))); }
+    80% { transform: rotate(calc(3deg * var(--s))); }
+  }
 </style>
 </head>
 <body>
@@ -90,7 +153,7 @@
   <div class="card done" id="done" hidden>
     <svg viewBox="0 0 100 100" aria-hidden="true">
       <path d="M50 21.96C72 11.84 100 24.72 100 59.68C100 87.28 80 100 50 100C20 100 0 87.28 0 59.68C0 24.72 28 11.84 50 21.96Z" fill="#f55c4f"/>
-      <g fill="#66b366"><ellipse cx="41" cy="16" rx="11" ry="4.5" transform="rotate(-25 41 16)"/><ellipse cx="59" cy="16" rx="11" ry="4.5" transform="rotate(25 59 16)"/></g>
+      <g fill="#66b366"><g class="leaf"><ellipse cx="41" cy="16" rx="11" ry="4.5" transform="rotate(-25 41 16)"/></g><g class="leaf"><ellipse cx="59" cy="16" rx="11" ry="4.5" transform="rotate(25 59 16)"/></g></g>
       <rect x="47.5" y="3" width="5" height="16" rx="2.5" fill="#40804d"/>
     </svg>
     <h2>Thanks, it's on its way.</h2>
@@ -115,14 +178,14 @@
     event.preventDefault();
     send.disabled = true;
     status.textContent = '';
-    send.textContent = 'Sending…';
+    send.innerHTML = '<span class="pulse">Sending…</span>';
     // Give the bot check a few seconds to finish if Send was quicker than it.
     for (let i = 0; i < 50 && window.turnstile && !turnstile.getResponse(); i++) await new Promise(r => setTimeout(r, 100));
     let problem;
     try {
       const res = await fetch(form.action, { method: 'POST', body: new FormData(form), headers: { Accept: 'application/json' } });
       const data = await res.json().catch(() => ({}));
-      if (res.ok && data.ok) return done();
+      if (res.ok && data.ok) return thank();
       problem = data.error || 'That didn\'t go through. Try again in a little while.';
     } catch {
       problem = 'Couldn\'t reach the server. Check your connection and try again.';
@@ -132,6 +195,26 @@
     send.disabled = false;
     send.textContent = 'Send message';
   });
+
+  // Sent: the form cross-fades into the thank-you card, whose tomato drops in and lands.
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)');
+  const thanks = document.getElementById('done');
+  function thank() {
+    if (reduce.matches) return done();
+    if (!document.startViewTransition) { thanks.classList.add('fade'); return done(); }
+    const root = document.documentElement;
+    thanks.classList.add('quiet');  // the cross-fade brings the card in, so it doesn't rise as well
+    root.classList.add('thanks');
+    const fade = document.startViewTransition(done);
+    fade.ready.catch(() => {});  // skipped (the tab was in the background, say): the card is swapped in all the same
+    fade.finished.finally(() => root.classList.remove('thanks'));
+  }
+
+  // A problem gets a small shake, so the eye goes to it.
+  const SHAKE = ['none', 'translateX(-5px)', 'translateX(5px)', 'translateX(-3px)', 'translateX(3px)', 'none'].map(transform => ({ transform, easing: 'ease-in-out' }));
+  new MutationObserver(() => {
+    if (status.textContent && !reduce.matches) status.animate(SHAKE, 400);
+  }).observe(status, { childList: true, characterData: true, subtree: true });
 </script>
 </body>
 </html>
