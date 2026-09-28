@@ -1,9 +1,9 @@
 {
-  "version": "1.2.1",
-  "url": "https://github.com/SanGlydeen/tomatito-site/releases/download/v1.2.1/Tomatito.dmg",
+  "version": "1.2.2",
+  "url": "https://github.com/SanGlydeen/tomatito-site/releases/download/v1.2.2/Tomatito.dmg",
   "minimumSystemVersion": "14.0",
-  "notes": "Opening Settings is smooth now: the popover keeps its shape.",
-  "archive": "https://github.com/SanGlydeen/tomatito-site/releases/download/v1.2.1/Tomatito-1.2.1.zip",
-  "sha256": "0ec4842af02f0e17c2bc760c11575bf0340fe7fee9c61f5ff930c798cc94f813",
-  "archiveSize": 975361
+  "notes": "Much lighter on your Mac: nothing keeps moving once the popover closes, and the tomato rests when it's still.",
+  "archive": "https://github.com/SanGlydeen/tomatito-site/releases/download/v1.2.2/Tomatito-1.2.2.zip",
+  "sha256": "6e19a8f8577a0be529d3eba1d89c8cb4f2f73387c671d6fcc97fe3a12e6ca34d",
+  "archiveSize": 985184
 }
